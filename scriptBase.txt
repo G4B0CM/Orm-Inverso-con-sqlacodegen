@@ -1,0 +1,1 @@
+python -m sqlacodegen "mssql+pyodbc://SUPERADMIN:UDLA@UPOAULA10603/AdventureWorks2008R2?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes" --schema HumanResources > modelos_humanresources.py
