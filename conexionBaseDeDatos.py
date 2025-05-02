@@ -1,42 +1,32 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
 
-# Parámetros de conexión
+import pyodbc
+
 usuario = "SUPERADMIN"
 contraseña = "UDLA"
-servidor = "UPOAULA10603"  # o IP
+servidor = "UPOAULA10603"
 base_datos = "AdventureWorks2008R2"
 
-# Construir la cadena de conexión con trustServerCertificate habilitado
 conexion_str = (
-    f"mssql+pyodbc://{usuario}:{contraseña}@{servidor}/{base_datos}"
-    "?driver=ODBC+Driver+17+for+SQL+Server"
-    "&TrustServerCertificate=yes"
+    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+    f"SERVER={servidor};"
+    f"DATABASE={base_datos};"
+    f"UID={usuario};"
+    f"PWD={contraseña};"
+    "TrustServerCertificate=yes;"
 )
 
-# Crear motor SQLAlchemy
-engine = create_engine(conexion_str)
 
-# Reflejar metadatos de la base
-metadata = MetaData()
-metadata.reflect(bind=engine)
+conn = pyodbc.connect(conexion_str)
+cursor = conn.cursor()
 
-# Crear clases ORM automáticamente
-Base = automap_base(metadata=metadata)
-Base.prepare()
+query = "SELECT * FROM Person.BusinessEntity" 
 
-# Crear sesión
-Session = sessionmaker(bind=engine)
-session = Session()
+cursor.execute(query)
 
-# ✅ Ejemplo: listar nombres de clases reflejadas
-print("Tablas reflejadas:")
-for class_name in Base.classes.keys():
-    print(f" - {class_name}")
+resultados = cursor.fetchall()
 
-# ✅ Ejemplo: usar una tabla reflejada (reemplaza con nombre real)
-# MiTabla = Base.classes.mi_tabla
-# resultados = session.query(MiTabla).all()
-# for fila in resultados:
-#     print(fila)
+for row in resultados:
+    print(row)
+
+cursor.close()
+conn.close()
